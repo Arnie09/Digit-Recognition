@@ -24,8 +24,8 @@
         />
 
     <ImageView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
         android:id="@+id/ImageView"
         android:layout_margin="15dp"
         android:layout_below="@+id/myCameraView"
