@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="DIGIT RECOGNISER"
+        android:id="@+id/heading"
+        android:textAlignment="center"
+        android:layout_margin="15dp"
+        android:gravity="center"/>
+
+    <org.opencv.android.JavaCameraView
+        android:layout_height="500dp"
+        android:layout_width= "500dp"
+        android:id="@+id/myCameraView"
+        app:show_fps = "true"
+        android:layout_below="@+id/heading"
+        />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/ImageView"
+        android:layout_margin="15dp"
+        android:layout_below="@+id/myCameraView"
+        />
+
+</RelativeLayout>
