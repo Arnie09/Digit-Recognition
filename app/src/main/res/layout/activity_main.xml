@@ -9,18 +9,32 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="DIGIT RECOGNISER"
+        android:text="@string/heading"
+        android:textStyle="bold"
+        android:textSize="25dp"
         android:id="@+id/heading"
         android:textAlignment="center"
-        android:layout_margin="15dp"
+        android:layout_margin="10dp"
         android:gravity="center"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_desc"
+        android:padding="5dp"
+        android:layout_below="@+id/heading"
+        android:id="@+id/subheading"
+        android:layout_marginBottom="15dp"
+        android:gravity="center"
+        android:textStyle="italic"
+        android:textSize="10dp"/>
 
     <org.opencv.android.JavaCameraView
         android:layout_height="500dp"
         android:layout_width= "500dp"
         android:id="@+id/myCameraView"
         app:show_fps = "true"
-        android:layout_below="@+id/heading"
+        android:layout_below="@+id/subheading"
         />
     <LinearLayout
         android:layout_width="match_parent"
@@ -38,19 +52,24 @@
 
         <LinearLayout
             android:id="@+id/ll2"
+            android:layout_marginTop="15dp"
+
             android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
             <Button
-                android:layout_margin="20dp"
+                android:layout_margin="10dp"
                 android:id="@+id/Capture"
-                android:text="Capture and analyse"
+                android:text="@string/button_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/prediction"
+                android:text="Hello1234"
+                android:textStyle="bold"
+                android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent" />
 

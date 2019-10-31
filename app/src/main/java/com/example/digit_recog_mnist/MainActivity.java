@@ -150,14 +150,12 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         mat1=inputFrame.rgba();
         Core.transpose(mat1,mat1);
         Core.flip(mat1,mat1,1);
-
-
         int top = mat1.rows()/2 - 140;
         int left = mat1.cols() / 2 - 140;
         int height = 140*2;
         int width = 140*2;
 
-        ///prepocess frame
+        ///pre-processing frame
         Mat gray = inputFrame.gray();
         //draw cropped region
         Imgproc.rectangle(mat1, new Point(mat1.cols()/2 - 150, mat1.rows() / 2 - 150), new Point(mat1.cols() / 2 + 150, mat1.rows() / 2 + 150), new Scalar(255,255,255),5);
@@ -170,27 +168,18 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         Mat element1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new org.opencv.core.Size(9,9));
         //dilate the frame
         Imgproc.dilate(mat2, mat2, element1);
-
         Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new org.opencv.core.Size(3,3));
         //erode the frame
         Imgproc.erode(mat2, mat2, element);
-
+        //downsize the image
         Imgproc.resize(mat2, imageToanalyse, new org.opencv.core.Size(28,28));///CNN input
         Core.transpose(imageToanalyse,imageToanalyse);
         Core.flip(imageToanalyse,imageToanalyse,1);
 
-        //Log.i("Interference","We are here");
-
-
-        //classifier.classifyMat(CNN_input);
-        //Imgproc.putText(mRgba, "Digit: "+classifier.getdigit()+ " Prob: "+classifier.getProb(), new Point(top, left), 3, 3, new Scalar(255, 0, 0, 255), 2);
-
-
+        //converting current frame to a bitmap to be displayed in the ImageView
         img = Bitmap.createBitmap(imageToanalyse.cols(), imageToanalyse.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(imageToanalyse, img);
-
-        graytemp.release();
-
+        //setting bitmap to imageview
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -199,16 +188,19 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             }
         });
 
+        graytemp.release();
+
         return mat1;
     }
 
     private void runInference() {
-        Log.i("Interference","Here");
+
         if(imgData != null)
             tflite.run(imgData, ProbArray);
         Log.e("Interference", "Inference done "+maxProbIndex(ProbArray[0]));
     }
 
+    //calculating max probability of the digit
     private int maxProbIndex(float[] probs) {
         int maxIndex = -1;
         float maxProb = 0.0f;
