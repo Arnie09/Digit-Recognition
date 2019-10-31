@@ -92,14 +92,10 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
             @Override
             public void onManagerConnected(int status) {
                 super.onManagerConnected(status);
-                switch (status){
-
-                    case BaseLoaderCallback.SUCCESS:
-                        cameraBridgeViewBase.enableView();
-                        break;
-                    default:
-                        super.onManagerConnected(status);
-                        break;
+                if (status == BaseLoaderCallback.SUCCESS) {
+                    cameraBridgeViewBase.enableView();
+                } else {
+                    super.onManagerConnected(status);
                 }
             }
         };
@@ -198,6 +194,8 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         if(imgData != null)
             tflite.run(imgData, ProbArray);
         Log.e("Interference", "Inference done "+maxProbIndex(ProbArray[0]));
+        String output = "The digit is: "+ maxProbIndex(ProbArray[0]);
+        prediction.setText(output);
     }
 
     //calculating max probability of the digit

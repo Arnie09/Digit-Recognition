@@ -3,4 +3,5 @@
     <string name="app_desc">Point the box towards a handwritten digit till you see the digit in the preview box. Then click on analyse.</string>
     <string name="heading">Digit Recogniser</string>
     <string name="button_name">Capture and Analyse</string>
+    <string name="sample_image">Processed Image</string>
 </resources>
