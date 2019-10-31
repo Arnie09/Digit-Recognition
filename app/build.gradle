@@ -1,6 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
+
+        aaptOptions {
+            noCompress "tflite"
+            noCompress "lite"
+        }
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
@@ -17,10 +22,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    sourceSets { main { jni.srcDirs = ['src/main/jni', 'src/main/jniLibs/'] } }
+    sourceSets {
+        main {
+            jni.srcDirs = ['src/main/jni', 'src/main/jniLibs/'] 
+            assets.srcDirs =['src/main/assets']
+} }
 }
 
 dependencies {
+    implementation 'org.tensorflow:tensorflow-lite:1.14.0'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'

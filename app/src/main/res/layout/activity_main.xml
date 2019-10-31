@@ -22,13 +22,42 @@
         app:show_fps = "true"
         android:layout_below="@+id/heading"
         />
-
-    <ImageView
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:id="@+id/ImageView"
-        android:layout_margin="15dp"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/myCameraView"
-        />
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:id="@+id/ImageView"
+            android:layout_margin="15dp"
+
+            />
+
+        <LinearLayout
+            android:id="@+id/ll2"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:layout_margin="20dp"
+                android:id="@+id/Capture"
+                android:text="Capture and analyse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/prediction"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
 
 </RelativeLayout>

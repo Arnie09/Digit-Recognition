@@ -2,12 +2,17 @@ package com.example.digit_recog_mnist;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceView;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -22,6 +27,15 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+import org.tensorflow.lite.Interpreter;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 
 public class MainActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
@@ -31,15 +45,47 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
     Mat imageToanalyse;
     ImageView myImageView;
     Bitmap img;
+    protected Interpreter tflite;
+    TextView prediction;
+    Button analyse;
+
+    private static int digit = -1;
+    private static float  prob = 0.0f;
+
+    private static final int DIM_BATCH_SIZE = 1;
+    private static final int DIM_PIXEL_SIZE =1;
+    private static final int  DIM_HEIGHT =28;
+    private static final int DIM_WIDTH = 28;
+    private static final int BYTES =4;
+    protected ByteBuffer imgData = null;
+    private float[][] ProbArray = null;
+    private String TAG = "MNIST";
+    public static final String ModelFile = "cnn_model.tflite";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        prediction = findViewById(R.id.prediction);
+        analyse = findViewById(R.id.Capture);
         cameraBridgeViewBase = (JavaCameraView)findViewById(R.id.myCameraView);
         cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
         cameraBridgeViewBase.setCvCameraViewListener(this);
-        //OpenCVLoader.initDebug()
         myImageView = findViewById(R.id.ImageView);
+
+
+        //initialise the tflite interpreter
+        try {
+            tflite = new Interpreter(loadModelFile(MainActivity.this));
+        }
+        catch (Exception e){
+            Log.i("Interference",e.getMessage());
+        }
+
+        //initialise the input of the neural net
+        imgData = ByteBuffer.allocateDirect(DIM_BATCH_SIZE * DIM_HEIGHT * DIM_WIDTH * DIM_PIXEL_SIZE * BYTES);
+        imgData.order(ByteOrder.nativeOrder());
+        ProbArray = new float[1][10];
 
 
         baseLoaderCallback = new BaseLoaderCallback(this) {
@@ -57,6 +103,29 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
                 }
             }
         };
+
+        analyse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(tflite!=null) {
+                    convertMattoTfLiteInput(imageToanalyse);
+                    runInference();
+                }else{
+                    Log.i("Interference","tflite is null");
+                }
+            }
+        });
+
+    }
+
+    //link the tflite model with the interpreter
+    private MappedByteBuffer loadModelFile(Activity activity) throws IOException {
+        AssetFileDescriptor fileDescriptor = activity.getAssets().openFd(ModelFile);
+        FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
+        FileChannel fileChannel = inputStream.getChannel();
+        long startOffset = fileDescriptor.getStartOffset();
+        long declaredLength = fileDescriptor.getDeclaredLength();
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
     }
 
     @Override
@@ -110,12 +179,13 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         Core.transpose(imageToanalyse,imageToanalyse);
         Core.flip(imageToanalyse,imageToanalyse,1);
 
-        ///use this to classify camera feed
+        //Log.i("Interference","We are here");
+
 
         //classifier.classifyMat(CNN_input);
         //Imgproc.putText(mRgba, "Digit: "+classifier.getdigit()+ " Prob: "+classifier.getProb(), new Point(top, left), 3, 3, new Scalar(255, 0, 0, 255), 2);
 
-        
+
         img = Bitmap.createBitmap(imageToanalyse.cols(), imageToanalyse.rows(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(imageToanalyse, img);
 
@@ -130,6 +200,39 @@ public class MainActivity extends AppCompatActivity implements CameraBridgeViewB
         });
 
         return mat1;
+    }
+
+    private void runInference() {
+        Log.i("Interference","Here");
+        if(imgData != null)
+            tflite.run(imgData, ProbArray);
+        Log.e("Interference", "Inference done "+maxProbIndex(ProbArray[0]));
+    }
+
+    private int maxProbIndex(float[] probs) {
+        int maxIndex = -1;
+        float maxProb = 0.0f;
+        for (int i = 0; i < probs.length; i++) {
+            if (probs[i] > maxProb) {
+                maxProb = probs[i];
+                maxIndex = i;
+            }
+        }
+        prob = maxProb;
+        digit = maxIndex;
+        return maxIndex;
+    }
+
+    //convert opencv mat to tensorflowlite input
+    private void convertMattoTfLiteInput(Mat mat)
+    {
+        imgData.rewind();
+        int pixel = 0;
+        for (int i = 0; i < DIM_HEIGHT; ++i) {
+            for (int j = 0; j < DIM_WIDTH; ++j) {
+                imgData.putFloat((float)mat.get(i,j)[0]);
+            }
+        }
     }
 
     @Override
